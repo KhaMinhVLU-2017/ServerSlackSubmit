@@ -20,8 +20,8 @@ var j = schedule.scheduleJob('0 * * * * 0-7', function () {
       if (item.status === 'Doing') {
         let payload = { 'text': item.content }
         console.log(payload)
-        let url = 'https://hooks.slack.com/services/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'
-        axios.defaults.headers.common['Authorization'] = 'xoxp-465332745443-466482831239-467482979190-61582e5ce242be8fd02b9ee1a00a4f2f'
+        let url = 'https://hooks.slack.com/services/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'
+        axios.defaults.headers.common['Authorization'] = ''
         axios.defaults.headers.post['Content-Type'] = 'application/json'
         axios.post(url, payload)
           .then(function (response) {
