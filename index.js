@@ -1,7 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const app = express()
-const port = 4444
+const port = 7777
 const router = require('./router')
 var schedule = require('node-schedule')
 var Tasks = require('./api/model/task')
@@ -53,6 +53,7 @@ app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Credentials', true) // If needed
   next()
 })
+app.use(cors())
 app.use('/api', router)
 
 app.listen(process.env.PORT || port, () => {
