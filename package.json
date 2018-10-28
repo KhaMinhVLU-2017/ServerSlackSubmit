@@ -1,0 +1,19 @@
+{
+  "name": "slack",
+  "version": "1.0.0",
+  "description": "Server Submit Slack",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "JudasFate",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "mongoose": "^5.3.7",
+    "node-cron": "^2.0.3",
+    "node-schedule": "^1.3.0"
+  }
+}
