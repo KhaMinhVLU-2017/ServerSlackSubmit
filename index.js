@@ -6,7 +6,7 @@ const router = require('./router')
 var schedule = require('node-schedule')
 var Tasks = require('./api/model/task')
 var axios = require('axios')
-
+var cors = require('cors')
 /**
  * Check schedule
  * 0 * 1 * * 0-7  tu thu 2 --> CN work tai 1:00AM o phut thu 1
@@ -46,7 +46,13 @@ db.once('open', function () {
 })
 
 app.get('/', (req, res) => res.send('Hello World!'))
-
+app.use(function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE')
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type') // If needed
+  res.setHeader('Access-Control-Allow-Credentials', true) // If needed
+  next()
+})
 app.use('/api', router)
 
 app.listen(process.env.PORT || port, () => {
