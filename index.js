@@ -10,9 +10,10 @@ var cors = require('cors')
 /**
  * Check schedule
  * 0 * 1 * * 0-7  tu thu 2 --> CN work tai 1:00AM o phut thu 1
+ * every day at 7:AM except sunday 0 1 7 * * 0-6
  */
 
-var j = schedule.scheduleJob('0 * * * * 0-6', function () {
+var j = schedule.scheduleJob('0 1 7 * * 0-6', function () {
   console.log('Every minute')
   Tasks.find({}, (err, data) => {
     if (err) console.log(err)
@@ -20,12 +21,18 @@ var j = schedule.scheduleJob('0 * * * * 0-6', function () {
       if (item.status === 'Doing') {
         let payload = { 'text': item.content }
         console.log(payload)
-        let url = 'https://hooks.slack.com/services/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'
-        axios.defaults.headers.common['Authorization'] = ''
+        let url = 'https://hooks.slack.com/services/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' // test SlackAPI
+        axios.defaults.headers.common['Authorization'] = '' // Token not push GIt for security
         axios.defaults.headers.post['Content-Type'] = 'application/json'
         axios.post(url, payload)
           .then(function (response) {
-            Tasks.update({ _id: item._id }, { status: 'Done' }, (err, resData) => {
+            var currentdate = new Date()
+            var datetime = currentdate.getDate() + '/' + (currentdate.getMonth() + 1) + '/' +
+            currentdate.getFullYear() + ' @ ' +
+            currentdate.getHours() + ':' +
+            currentdate.getMinutes() + ':' +
+            currentdate.getSeconds()
+            Tasks.update({ _id: item._id }, { status: 'Done', date: datetime }, (err, resData) => {
               if (err) console.log(err)
               console.log('Submit and Update status task complete')
             })

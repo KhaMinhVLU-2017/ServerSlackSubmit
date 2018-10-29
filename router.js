@@ -20,7 +20,7 @@ router.get('/taskList', (req, res) => {
   Tasks.find({}, (err, payload) => {
     if (err) console.log(err)
     let data = payload.reverse()
-    res.json({status: 200, data})
+    res.json({ status: 200, data })
   })
 })
 // Create Task POST
@@ -32,8 +32,19 @@ router.post('/task', (req, res) => {
   task.content = content
   task.status = status
   task.author = author
+  task.date = 'waiting'
   task.save()
   console.log('Save task with DB complete: ' + task)
-  res.json({status: 200, task})
+  res.json({ status: 200, task })
 })
+// Delete Task Doing
+router.get('/Task:id', (req, res) => {
+  let id = req.params.id
+  Tasks.deleteOne({ _id: id }, (err) => {
+    console.log('Error: ' + err)
+  })
+  let meo = 'Remove task complete ' + id
+  res.json({message: meo})
+})
+
 module.exports = router
