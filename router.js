@@ -56,53 +56,94 @@ router.get('/Task:id', (req, res) => {
  * 
  */
 router.post('/login', (req, res) => {
-  let { email, password } = req.body
-  res.json(body)
+  let { email } = req.body
+  let passwordClient = req.body.password
+  Users.findOne({ email }, async (err, data) => {
+    if (err) res.json({
+      message: 'Error DB',
+      status: 404
+    })
+    if (!data) {
+      res.json({
+        message: 'Please input email or password',
+        status: 404
+      })
+    } else {
+      let { email, username, status, password } = data
+      let check = bcrypt.compareSync(passwordClient, password)
+      if (check === false) {
+        res.json({
+          message: 'Password is wrong',
+          status: 404
+        })
+      }
+      if (status !== 'active') {
+        res.json({
+          message: 'Please verify your email',
+          status: 404
+        })
+      }
+      jwt.sign({ email, username, status }, api.keyToken, { expiresIn: '1h' }, (err, token) => {
+        if (err) res.json({
+          message: 'Error Token parese',
+          status: 500
+        })
+        res.json({
+          token,
+          status: 200,
+          message: 'Complete'
+        })
+      })
+    }
+  })
 })
 router.post('/register', (req, res) => {
   let { email } = req.body
   let { username } = req.body
   let { password } = req.body
   let token = jwt.sign({ email, username }, api.keyToken, { expiresIn: '1h' })
-  bcrypt.hash(password, saltRounds, (err, hash) => {
+  bcrypt.hash(password, saltRounds, async (err, hash) => {
     if (err) res.json({
       message: 'Hash error',
       status: 500
     })
-    let user = new Users()
-    user.email = email
-    user.username = username
-    user.password = hash
-    user.status = 'inactive'
-    user.save((err) => {
-      if (err) res.json({
+    let userOld = await Users.findOne({ email: email })
+    if (userOld) {
+      res.json({
         message: 'Not save DB',
         status: 500
       })
-    })
-    nodemailer.createTestAccount((err, account) => {
-      let transporter = nodemailer.createTransport(myEmail)
-      let subject = 'Hello ' + username + ' ✔'
-      let url = api.local + '/api/verify' + token
-      let text = '<p>You are check url verify account mySlackSubmit: ' + url + '</p>'
-      let mailOptions = {
-        from: '"Slacks\'s JudasFate" <myslackjudasfate@gmail.com>', // sender address
-        to: email, // list of receivers
-        subject: subject, // Subject line
-        text: text, // plain text body
-        html: text // html body
-      }
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          return console.log(error);
+    } else {
+      let user = new Users()
+      user.email = email
+      user.username = username
+      user.password = hash
+      user.status = 'inactive'
+      user.save()
+      nodemailer.createTestAccount((err, account) => {
+        let transporter = nodemailer.createTransport(myEmail)
+        let subject = 'Hello ' + username + ' ✔'
+        let url = api.local + '/api/verify' + token
+        let text = '<p>You are check url verify account mySlackSubmit: ' + url + '</p>'
+        let mailOptions = {
+          from: '"Slacks\'s JudasFate" <myslackjudasfate@gmail.com>', // sender address
+          to: email, // list of receivers
+          subject: subject, // Subject line
+          text: text, // plain text body
+          html: text // html body
         }
-        console.log('Send email complete ' + email)
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            return console.log(error);
+          }
+          console.log('Send email complete ' + email)
+        })
+        res.json({
+          message: 'complete',
+          status: 200
+        })
       })
-      res.json({
-        message: 'complete',
-        status: 200
-      })
-    })
+    }
   })
 })
 /**
@@ -115,7 +156,7 @@ router.get('/verify:token', (req, res) => {
       message: 'Token error',
       status: 500
     })
-    let emailCr  = decoded.email
+    let emailCr = decoded.email
     Users.findOneAndUpdate({ email: emailCr }, { status: 'active' }, (err) => {
       if (err) res.json({
         message: 'Token error',
