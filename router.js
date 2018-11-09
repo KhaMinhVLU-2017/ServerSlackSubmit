@@ -2,6 +2,8 @@ const express = require('express')
 const router = express.Router()
 var Tasks = require('./api/model/task')
 var bodyParser = require('body-parser')
+var Users = require('./api/model/user')
+
 router.use(bodyParser.json()) // support json encoded bodies
 router.use(bodyParser.urlencoded({ extended: true })) // support encoded bodies
 
@@ -46,5 +48,12 @@ router.get('/Task:id', (req, res) => {
   let meo = 'Remove task complete ' + id
   res.json({message: meo})
 })
-
+router.post('/login',(req, res) => {
+  let {body} = req
+  res.json(body)
+})
+router.post('/register',(req, res) => {
+  let {body} = req
+  res.json(body)
+})
 module.exports = router
