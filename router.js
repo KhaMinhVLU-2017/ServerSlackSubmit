@@ -53,7 +53,7 @@ router.get('/Task:id', (req, res) => {
   res.json({ message: meo })
 })
 /**
- * 
+ * Login
  */
 router.post('/login', (req, res) => {
   let { email } = req.body
@@ -69,7 +69,7 @@ router.post('/login', (req, res) => {
         status: 404
       })
     } else {
-      let { email, username, status, password } = data
+      let { email, username, status, password, _id } = data
       let check = bcrypt.compareSync(passwordClient, password)
       if (check === false) {
         res.json({
@@ -83,7 +83,7 @@ router.post('/login', (req, res) => {
           status: 404
         })
       }
-      jwt.sign({ email, username, status }, api.keyToken, { expiresIn: '1h' }, (err, token) => {
+      jwt.sign({ email, username, status, _id }, api.keyToken, { expiresIn: '1h' }, (err, token) => {
         if (err) res.json({
           message: 'Error Token parese',
           status: 500
@@ -120,7 +120,7 @@ router.post('/register', (req, res) => {
       user.password = hash
       user.status = 'inactive'
       user.save()
-      nodemailer.createTestAccount((err, account) => {
+      nodemailer.createTestAccount(() => {
         let transporter = nodemailer.createTransport(myEmail)
         let subject = 'Hello ' + username + ' ✔'
         let url = api.local + '/api/verify' + token
@@ -134,7 +134,7 @@ router.post('/register', (req, res) => {
         }
         transporter.sendMail(mailOptions, (error, info) => {
           if (error) {
-            return console.log(error);
+            return console.log(error)
           }
           console.log('Send email complete ' + email)
         })
@@ -162,10 +162,7 @@ router.get('/verify:token', (req, res) => {
         message: 'Token error',
         status: 500
       })
-      res.json({
-        message: 'Update Complete',
-        status: 200
-      })
+      res.redirect(api.urlClient)
     })
   })
 })
