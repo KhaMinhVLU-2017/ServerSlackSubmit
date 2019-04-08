@@ -7,22 +7,24 @@ var schedule = require('node-schedule')
 var Tasks = require('./api/model/task')
 var axios = require('axios')
 var cors = require('cors')
+let {payloadMain, api} = require('./config')
 /**
  * Check schedule
  * 0 * 1 * * 0-7  tu thu 2 --> CN work tai 1:00AM o phut thu 1
  * every day at 7:AM except sunday 0 1 7 * * 0-6
  */
 
-var j = schedule.scheduleJob('0 1 7 * * 0-6', function () {
-  console.log('Every minute')
+var j = schedule.scheduleJob('1 * * * * 0-7', function () {
+  console.log('Start Schedule Complete')
   Tasks.find({}, (err, data) => {
     if (err) console.log(err)
     data.map(item => {
       if (item.status === 'Doing') {
-        let payload = { 'text': item.content }
+        //item.content
+        let payload = payloadMain(item.content)
         console.log(payload)
-        let url = 'https://hooks.slack.com/services/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' // test SlackAPI
-        axios.defaults.headers.common['Authorization'] = '' // Token not push GIt for security
+        let url =  api.urlSlackHook// test SlackAPI
+        axios.defaults.headers.common['Authorization'] =  api.xToken// Token not push GIt for security
         axios.defaults.headers.post['Content-Type'] = 'application/json'
         axios.post(url, payload)
           .then(function (response) {
